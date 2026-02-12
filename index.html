@@ -801,7 +801,10 @@
                 <h3>📊 Upload Questions (Excel)</h3>
                 <p>Click to upload or drag and drop your .xlsx file</p>
                 <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="handleFileUpload(event)">
-                <button class="btn-primary" style="margin-top: 10px;" onclick="downloadTemplate()">Download Template</button>
+                <button class="btn-primary" style="margin-top: 10px;" onclick="downloadTemplate()">📥 Download Template (Generated)</button>
+                <p style="margin-top: 10px; font-size: 14px; color: #64748b;">
+                    Or download directly: <a href="./question_template.xlsx" download style="color: #0369a1; font-weight: bold;">question_template.xlsx</a>
+                </p>
             </div>
 
             <div class="question-counter">
@@ -980,15 +983,22 @@
         }
 
         function downloadTemplate() {
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet([
-                ['Question', 'Answer'],
-                ['What is 2 + 2?', '4'],
-                ['What is the capital of France?', 'Paris'],
-                ['What color is the sky?', 'Blue']
-            ]);
-            XLSX.utils.book_append_sheet(wb, ws, 'Questions');
-            XLSX.writeFile(wb, 'question_template.xlsx');
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet([
+                    ['Question', 'Answer'],
+                    ['What is 2 + 2?', '4'],
+                    ['What is the capital of France?', 'Paris'],
+                    ['What color is the sky?', 'Blue']
+                ]);
+                XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+                
+                // Use writeFile for download
+                XLSX.writeFile(wb, 'question_template.xlsx');
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('There was an error downloading the template. Please try again or check your browser settings.');
+            }
         }
 
         function handleFileUpload(event) {
