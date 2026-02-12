@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Tower Builder - Reverse Jenga</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Player Colors */
+        :root {
+            --player-0-color: #1FCCB9; /* Turquoise/Teal - custom */
+            --player-0-color-light: #6ee7d7;
+            --player-1-color: #a78bfa; /* Purple - lighter */
+            --player-1-color-light: #c4b5fd;
+            --player-2-color: #fbbf24; /* Orange/Amber - lighter */
+            --player-2-color-light: #fcd34d;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .homepage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+
+        .homepage.hidden {
+            display: none;
+        }
+
+        .homepage h1 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .homepage p {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 50px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 40px 60px;
+            border: none;
+            border-radius: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            color: #667eea;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-width: 250px;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .mode-btn .icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .header.active {
+            display: block;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #f56565;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .back-btn:hover {
+            background: #e53e3e;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Teacher Section Styles */
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+
+        .question-input {
+            margin-bottom: 20px;
+        }
+
+        .question-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .game-code-display {
+            background: #48bb78;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .game-code {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin: 10px 0;
+        }
+
+        /* Student Section Styles */
+        .game-setup {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .game-code-input {
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 5px;
+            padding: 15px;
+            width: 300px;
+            margin: 20px auto;
+        }
+
+        .player-setup {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .player-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Game Board Styles */
+        .game-board {
+            display: none;
+            position: relative;
+        }
+
+        .game-board.active {
+            display: block;
+        }
+
+        .players-area {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            max-width: 100%;
+        }
+
+        .player-tower {
+            background: linear-gradient(to bottom, #f7fafc, #edf2f7);
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            max-width: 32%;
+            min-width: 250px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            border: 4px solid transparent;
+        }
+        
+        .player-tower[data-player="0"] {
+            border-color: var(--player-0-color);
+        }
+        
+        .player-tower[data-player="1"] {
+            border-color: var(--player-1-color);
+        }
+        
+        .player-tower[data-player="2"] {
+            border-color: var(--player-2-color);
+        }
+
+        .player-tower.active {
+            box-shadow: 0 0 0 4px #667eea;
+            transform: scale(1.01);
+        }
+
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .tower-container {
+            min-height: 600px;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            perspective: 2400px;
+            perspective-origin: 50% 400px;
+            overflow: visible;
+            padding: 20px;
+        }
+
+        .tower-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-25deg) rotateY(30deg);
+            width: 200px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        .tower-layer {
+            position: absolute;
+            transform-style: preserve-3d;
+            width: 200px;
+            height: 48px;
+        }
+
+        .block {
+            position: absolute;
+            width: 160px;
+            height: 48px;
+            transform-style: preserve-3d;
+        }
+
+        .block .face {
+            position: absolute;
+            backface-visibility: visible;
+        }
+
+        /* Main faces */
+        .block .front {
+            width: 160px;
+            height: 48px;
+            background: linear-gradient(135deg, #d4a574 0%, #c4956b 100%);
+            transform: translateZ(24px);
+        }
+
+        .block .back {
+            width: 160px;
+            height: 48px;
+            background: linear-gradient(135deg, #c4956b 0%, #b8865f 100%);
+            transform: translateZ(-24px) rotateY(180deg);
+        }
+
+        /* Top/bottom faces */
+        .block .top {
+            width: 160px;
+            height: 48px;
+            background: linear-gradient(135deg, #e0b584 0%, #d4a574 100%);
+            transform: rotateX(90deg) translateZ(24px);
+        }
+        
+        /* Player 0 - Turquoise/Teal blocks */
+        .block.player-0 .front {
+            background: linear-gradient(135deg, var(--player-0-color) 0%, var(--player-0-color-light) 100%);
+        }
+        .block.player-0 .back {
+            background: linear-gradient(135deg, var(--player-0-color-light) 0%, var(--player-0-color) 100%);
+        }
+        .block.player-0 .top {
+            background: linear-gradient(135deg, var(--player-0-color-light) 0%, var(--player-0-color) 100%);
+        }
+        .block.player-0 .bottom {
+            background: linear-gradient(135deg, var(--player-0-color) 0%, #19a89a 100%);
+        }
+        .block.player-0 .left, .block.player-0 .right {
+            background: linear-gradient(135deg, var(--player-0-color) 0%, #19a89a 100%);
+        }
+        
+        /* Player 1 - Purple blocks */
+        .block.player-1 .front {
+            background: linear-gradient(135deg, var(--player-1-color) 0%, var(--player-1-color-light) 100%);
+        }
+        .block.player-1 .back {
+            background: linear-gradient(135deg, var(--player-1-color-light) 0%, var(--player-1-color) 100%);
+        }
+        .block.player-1 .top {
+            background: linear-gradient(135deg, var(--player-1-color-light) 0%, var(--player-1-color) 100%);
+        }
+        .block.player-1 .bottom {
+            background: linear-gradient(135deg, var(--player-1-color) 0%, #8b5cf6 100%);
+        }
+        .block.player-1 .left, .block.player-1 .right {
+            background: linear-gradient(135deg, var(--player-1-color) 0%, #8b5cf6 100%);
+        }
+        
+        /* Player 2 - Orange/Amber blocks */
+        .block.player-2 .front {
+            background: linear-gradient(135deg, var(--player-2-color) 0%, var(--player-2-color-light) 100%);
+        }
+        .block.player-2 .back {
+            background: linear-gradient(135deg, var(--player-2-color-light) 0%, var(--player-2-color) 100%);
+        }
+        .block.player-2 .top {
+            background: linear-gradient(135deg, var(--player-2-color-light) 0%, var(--player-2-color) 100%);
+        }
+        .block.player-2 .bottom {
+            background: linear-gradient(135deg, var(--player-2-color) 0%, #f59e0b 100%);
+        }
+        .block.player-2 .left, .block.player-2 .right {
+            background: linear-gradient(135deg, var(--player-2-color) 0%, #f59e0b 100%);
+        }
+
+        .block .bottom {
+            width: 160px;
+            height: 48px;
+            background: linear-gradient(135deg, #b8865f 0%, #a0754f 100%);
+            transform: rotateX(-90deg) translateZ(24px);
+        }
+
+        /* End faces */
+        .block .left {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #b8865f 0%, #a0754f 100%);
+            transform: rotateY(90deg) translateX(-24px);
+            left: 0;
+            transform-origin: left center;
+        }
+
+        .block .right {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #c4956b 0%, #b8865f 100%);
+            transform: rotateY(90deg) translateX(-24px);
+            left: 160px;
+            transform-origin: left center;
+        }
+
+        /* HORIZONTAL LAYERS - 3 blocks side-by-side running left-right */
+        .block.horizontal.pos-0 { 
+            left: 3px; 
+            top: 0px;
+            transform: translateZ(-48px);
+        }
+        .block.horizontal.pos-1 { 
+            left: 3px; 
+            top: 0px;
+            transform: translateZ(4px);
+        }
+        .block.horizontal.pos-2 { 
+            left: 3px; 
+            top: 0px;
+            transform: translateZ(56px);
+        }
+
+        /* VERTICAL LAYERS - 3 blocks perpendicular */
+        .block.vertical.pos-0 {
+            left: -27px;
+            top: 0px;
+            transform: rotateY(90deg) translateZ(-24px);
+        }
+        .block.vertical.pos-1 {
+            left: -27px;
+            top: 0px;
+            transform: rotateY(90deg) translateZ(28px);
+        }
+        .block.vertical.pos-2 {
+            left: -27px;
+            top: 0px;
+            transform: rotateY(90deg) translateZ(80px);
+        }
+
+        .block .face {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .block:hover .face {
+            filter: brightness(1.3);
+        }
+
+        .block:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .block.selected .face {
+            filter: brightness(1.5) saturate(1.5);
+        }
+
+        .block.selected {
+            animation: pulse3d 0.5s infinite;
+        }
+
+        .block.falling {
+            animation: fall3d 1s forwards;
+        }
+
+        @keyframes pulse3d {
+            0%, 100% { 
+                transform: scale(1); 
+            }
+            50% { 
+                transform: scale(1.1); 
+            }
+        }
+
+        @keyframes fall3d {
+            to {
+                transform: translateY(600px) rotateX(360deg) rotateY(360deg) rotateZ(180deg);
+                opacity: 0;
+            }
+        }
+
+        /* Card Deck Styles */
+        .card-area {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .card-deck {
+            position: relative;
+            display: inline-block;
+            width: 150px;
+            height: 200px;
+            cursor: pointer;
+        }
+
+        .deck-card {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid white;
+        }
+
+        .deck-count {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .question-card {
+            position: absolute;
+            width: 320px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            perspective: 1000px;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: drawCard 0.8s forwards;
+        }
+
+        @keyframes drawCard {
+            from {
+                bottom: 0;
+                transform: translateX(-50%) scale(0.3);
+                opacity: 0;
+            }
+            to {
+                bottom: 100px;
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, var(--current-player-color, #667eea) 0%, var(--current-player-color-light, #764ba2) 100%);
+            color: white;
+        }
+
+        .card-back {
+            background: white;
+            border: 3px solid #667eea;
+            transform: rotateY(180deg);
+        }
+
+        .card-question {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-answer {
+            font-size: 18px;
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .timer {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .card-actions {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            display: none;
+        }
+
+        .card-actions.active {
+            display: flex;
+        }
+
+        .action-btn {
+            padding: 30px 50px;
+            font-size: 32px;
+            font-weight: bold;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-incorrect {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-correct-build {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-correct-destroy {
+            background: #ed8936;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .destroy-mode-msg {
+            background: #ed8936;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .destroy-mode-msg.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        .current-player {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .winner-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+
+        .winner-display.active {
+            display: block;
+            animation: bounceIn 0.8s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .winner-display h2 {
+            font-size: 48px;
+            color: #48bb78;
+            margin-bottom: 20px;
+        }
+
+        .questions-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .question-counter {
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Homepage -->
+        <div id="homepage" class="homepage">
+            <h1>🏗️ Educational Tower Builder</h1>
+            <p>Reverse Jenga - Build Your Knowledge Tower!</p>
+            <div class="mode-selector">
+                <button class="mode-btn" onclick="selectMode('teacher')">
+                    <span class="icon">👨‍🏫</span>
+                    Teacher
+                </button>
+                <button class="mode-btn" onclick="selectMode('student')">
+                    <span class="icon">🎮</span>
+                    Student
+                </button>
+            </div>
+        </div>
+
+        <!-- Header (shown after mode selection) -->
+        <div class="header" id="header">
+            <h1 id="headerTitle">🏗️ Educational Tower Builder</h1>
+            <button class="back-btn" onclick="backToHome()">← Back to Home</button>
+        </div>
+
+        <!-- Teacher Section -->
+        <div id="teacher-section" class="section">
+            <h2>Teacher Setup</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <h3>📊 Upload Questions (Excel)</h3>
+                <p>Click to upload or drag and drop your .xlsx file</p>
+                <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="handleFileUpload(event)">
+                <button class="btn-primary" style="margin-top: 10px;" onclick="downloadTemplate()">Download Template</button>
+            </div>
+
+            <div class="question-counter">
+                Questions Added: <span id="questionCount">0</span> / 200
+            </div>
+
+            <div class="question-input">
+                <h3>Manual Question Entry</h3>
+                <div id="questionsList" class="questions-list">
+                    <!-- Questions will be added here -->
+                </div>
+                <button class="btn-secondary" onclick="addQuestionInput()">+ Add Question</button>
+            </div>
+
+            <button class="btn-primary" style="width: 100%; padding: 15px; font-size: 18px; margin-top: 20px;" onclick="generateGameCode()">
+                🎮 Generate Game Code
+            </button>
+
+            <div id="gameCodeDisplay" class="game-code-display">
+                <h2>Game Code Generated!</h2>
+                <div class="game-code" id="displayedCode"></div>
+                <button class="btn-primary" onclick="copyGameCode()" style="margin: 20px 0;">
+                    📋 Copy Code to Clipboard
+                </button>
+                <div style="background: #f0f9ff; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: left;">
+                    <h3 style="margin-top: 0; color: #0369a1;">📚 Instructions for Students:</h3>
+                    <ol style="line-height: 1.8; color: #334155;">
+                        <li>Share the game code with your students: <strong id="codeToShare"></strong></li>
+                        <li>Ask students to visit: <a href="https://alexhay-sisb.github.io/jenga-tower/index.html" target="_blank" style="color: #0369a1; font-weight: bold;">https://alexhay-sisb.github.io/jenga-tower/index.html</a></li>
+                        <li>Students click <strong>"Student Mode"</strong></li>
+                        <li>Students enter the game code</li>
+                        <li>Students enter their names (2-3 players)</li>
+                        <li>Click <strong>"Start Game"</strong> and play!</li>
+                    </ol>
+                    <p style="margin: 15px 0 0 0; padding: 15px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 5px; color: #92400e;">
+                        💡 <strong>Tip:</strong> Copy the game link and code, then paste it in your classroom chat or email!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Section -->
+        <div id="student-section" class="section">
+            <div id="gameSetup" class="game-setup">
+                <h2>Enter Game Code</h2>
+                <input type="text" class="game-code-input" id="gameCodeInput" placeholder="Enter Code" maxlength="6">
+                <button class="btn-primary" onclick="validateGameCode()">Join Game</button>
+
+                <div id="playerSetup" class="player-setup" style="display: none;">
+                    <h3>Add Players (2-3 players)</h3>
+                    <div id="playerInputs">
+                        <div class="player-input">
+                            <input type="text" placeholder="Player 1 Name" class="player-name-input">
+                            <button class="btn-danger" onclick="removePlayerInput(this)">Remove</button>
+                        </div>
+                        <div class="player-input">
+                            <input type="text" placeholder="Player 2 Name" class="player-name-input">
+                            <button class="btn-danger" onclick="removePlayerInput(this)">Remove</button>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="addPlayerInput()">+ Add Player (Max 3)</button>
+                    <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="startGame()">Start Game</button>
+                </div>
+            </div>
+
+            <div id="gameBoard" class="game-board">
+                <div class="current-player" id="currentPlayerDisplay"></div>
+                
+                <div class="destroy-mode-msg" id="destroyModeMsg">
+                    Click on any block from an opponent's tower to destroy it!
+                </div>
+
+                <div class="players-area" id="playersArea"></div>
+
+                <div class="card-area">
+                    <div class="card-deck" id="cardDeck" onclick="drawCard()">
+                        <div class="deck-card" style="transform: rotate(-2deg);"></div>
+                        <div class="deck-card" style="transform: rotate(1deg);"></div>
+                        <div class="deck-card" style="transform: rotate(-1deg);"></div>
+                        <div class="deck-count" id="deckCount">0</div>
+                    </div>
+
+                    <div class="question-card" id="questionCard">
+                        <div class="card-inner" id="cardInner">
+                            <div class="card-front">
+                                <div class="timer" id="timer">30</div>
+                                <div class="card-question" id="cardQuestion">Click to reveal answer</div>
+                            </div>
+                            <div class="card-back">
+                                <div class="card-question" id="cardQuestionBack"></div>
+                                <div class="card-answer" id="cardAnswer"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions" id="cardActions">
+                        <button class="action-btn btn-incorrect" onclick="handleIncorrect()">❌ Incorrect</button>
+                        <button class="action-btn btn-correct-build" onclick="handleCorrectBuild()">✅ Correct - Build</button>
+                        <button class="action-btn btn-correct-destroy" onclick="handleCorrectDestroy()">💥 Correct - Destroy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="winner-display" id="winnerDisplay">
+            <h2>🎉 Winner! 🎉</h2>
+            <p id="winnerName" style="font-size: 32px; font-weight: bold; margin: 20px 0;"></p>
+            <button class="btn-primary" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Global game state
+        let gameData = {
+            questions: [],
+            gameCode: '',
+            players: [],
+            currentPlayerIndex: 0,
+            currentQuestionIndex: 0,
+            destroyMode: false,
+            targetPlayer: null,
+            timerInterval: null
+        };
+        
+        // Make gameData accessible from console for debugging
+        window.gameData = gameData;
+        
+        // Debug function to check player blocks
+        window.debugPlayer = function(playerIndex) {
+            const player = gameData.players[playerIndex];
+            if (!player) {
+                console.log('Player not found');
+                return;
+            }
+            console.log(`Player ${playerIndex} (${player.name}):`);
+            console.log('Total blocks:', player.blocks.length);
+            console.log('Blocks by layer:', player.blocks.map(b => b.layer));
+            
+            const layerCounts = {};
+            player.blocks.forEach(b => {
+                layerCounts[b.layer] = (layerCounts[b.layer] || 0) + 1;
+            });
+            console.log('Layer counts:', layerCounts);
+        };
+
+        function selectMode(mode) {
+            // Hide homepage
+            document.getElementById('homepage').classList.add('hidden');
+            
+            // Show header
+            document.getElementById('header').classList.add('active');
+            
+            // Update header title
+            const title = mode === 'teacher' ? '👨‍🏫 Teacher Setup' : '🎮 Student Game';
+            document.getElementById('headerTitle').textContent = title;
+            
+            // Show selected section
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(mode + '-section').classList.add('active');
+        }
+
+        function backToHome() {
+            // Show homepage
+            document.getElementById('homepage').classList.remove('hidden');
+            
+            // Hide header
+            document.getElementById('header').classList.remove('active');
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            
+            // Reset game board if it was active
+            document.getElementById('gameBoard').classList.remove('active');
+            document.getElementById('gameSetup').style.display = 'block';
+        }
+
+        function downloadTemplate() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([
+                ['Question', 'Answer'],
+                ['What is 2 + 2?', '4'],
+                ['What is the capital of France?', 'Paris'],
+                ['What color is the sky?', 'Blue']
+            ]);
+            XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+            XLSX.writeFile(wb, 'question_template.xlsx');
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                gameData.questions = jsonData.map(row => ({
+                    question: row.Question || row.question || '',
+                    answer: row.Answer || row.answer || ''
+                })).filter(q => q.question && q.answer).slice(0, 200);
+
+                updateQuestionsList();
+                updateQuestionCount();
+                alert(`Loaded ${gameData.questions.length} questions!`);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function addQuestionInput() {
+            if (gameData.questions.length >= 200) {
+                alert('Maximum 200 questions allowed!');
+                return;
+            }
+
+            const questionsList = document.getElementById('questionsList');
+            const index = gameData.questions.length;
+            
+            const questionItem = document.createElement('div');
+            questionItem.className = 'question-item';
+            questionItem.innerHTML = `
+                <input type="text" placeholder="Question ${index + 1}" class="question-text" data-index="${index}">
+                <input type="text" placeholder="Answer" class="answer-text" data-index="${index}">
+                <button class="btn-danger" onclick="removeQuestion(${index})">Remove</button>
+            `;
+            questionsList.appendChild(questionItem);
+
+            gameData.questions.push({ question: '', answer: '' });
+            updateQuestionCount();
+
+            // Add event listeners to update the data
+            questionItem.querySelector('.question-text').addEventListener('input', function(e) {
+                gameData.questions[index].question = e.target.value;
+            });
+            questionItem.querySelector('.answer-text').addEventListener('input', function(e) {
+                gameData.questions[index].answer = e.target.value;
+            });
+        }
+
+        function removeQuestion(index) {
+            gameData.questions.splice(index, 1);
+            updateQuestionsList();
+            updateQuestionCount();
+        }
+
+        function updateQuestionsList() {
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = '';
+            
+            gameData.questions.forEach((q, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'question-item';
+                questionItem.innerHTML = `
+                    <input type="text" placeholder="Question ${index + 1}" class="question-text" value="${q.question}" data-index="${index}">
+                    <input type="text" placeholder="Answer" class="answer-text" value="${q.answer}" data-index="${index}">
+                    <button class="btn-danger" onclick="removeQuestion(${index})">Remove</button>
+                `;
+                questionsList.appendChild(questionItem);
+
+                questionItem.querySelector('.question-text').addEventListener('input', function(e) {
+                    gameData.questions[index].question = e.target.value;
+                });
+                questionItem.querySelector('.answer-text').addEventListener('input', function(e) {
+                    gameData.questions[index].answer = e.target.value;
+                });
+            });
+        }
+
+        function updateQuestionCount() {
+            document.getElementById('questionCount').textContent = gameData.questions.length;
+        }
+
+        function generateGameCode() {
+            const validQuestions = gameData.questions.filter(q => q.question && q.answer);
+            
+            if (validQuestions.length === 0) {
+                alert('Please add at least one question!');
+                return;
+            }
+
+            gameData.questions = validQuestions;
+            gameData.gameCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            // Store in localStorage
+            localStorage.setItem('game_' + gameData.gameCode, JSON.stringify(gameData.questions));
+            
+            document.getElementById('displayedCode').textContent = gameData.gameCode;
+            document.getElementById('codeToShare').textContent = gameData.gameCode;
+            document.getElementById('gameCodeDisplay').style.display = 'block';
+        }
+        
+        function copyGameCode() {
+            const code = gameData.gameCode;
+            const text = `Game Code: ${code}\nGame Link: https://alexhay-sisb.github.io/jenga-tower/index.html`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                alert(`Copy this:\n\nGame Code: ${code}\nGame Link: https://alexhay-sisb.github.io/jenga-tower/index.html`);
+            });
+        }
+
+        function validateGameCode() {
+            const code = document.getElementById('gameCodeInput').value.toUpperCase();
+            const storedQuestions = localStorage.getItem('game_' + code);
+            
+            if (!storedQuestions) {
+                alert('Invalid game code!');
+                return;
+            }
+
+            gameData.gameCode = code;
+            gameData.questions = JSON.parse(storedQuestions);
+            document.getElementById('playerSetup').style.display = 'block';
+        }
+
+        function addPlayerInput() {
+            const playerInputs = document.getElementById('playerInputs');
+            const playerCount = playerInputs.children.length;
+            
+            if (playerCount >= 3) {
+                alert('Maximum 3 players allowed!');
+                return;
+            }
+            
+            const playerInput = document.createElement('div');
+            playerInput.className = 'player-input';
+            playerInput.innerHTML = `
+                <input type="text" placeholder="Player ${playerCount + 1} Name" class="player-name-input">
+                <button class="btn-danger" onclick="removePlayerInput(this)">Remove</button>
+            `;
+            playerInputs.appendChild(playerInput);
+        }
+
+        function removePlayerInput(btn) {
+            if (document.getElementById('playerInputs').children.length > 2) {
+                btn.parentElement.remove();
+            } else {
+                alert('Minimum 2 players required!');
+            }
+        }
+
+        function startGame() {
+            const playerInputs = document.querySelectorAll('.player-name-input');
+            gameData.players = Array.from(playerInputs)
+                .map(input => input.value.trim())
+                .filter(name => name)
+                .map(name => {
+                    const player = {
+                        name: name,
+                        blocks: []
+                    };
+                    
+                    // Cheat code: alexander hay starts with half-built tower (18 blocks)
+                    if (name.toLowerCase() === 'alexander hay') {
+                        for (let i = 0; i < 18; i++) {
+                            player.blocks.push({ 
+                                id: Date.now() + i,
+                                layer: Math.floor(i / 3)
+                            });
+                        }
+                    }
+                    
+                    return player;
+                });
+
+            if (gameData.players.length < 2) {
+                alert('Please add at least 2 players!');
+                return;
+            }
+
+            if (gameData.players.length > 3) {
+                alert('Maximum 3 players allowed!');
+                return;
+            }
+
+            // Shuffle questions
+            gameData.questions = shuffleArray(gameData.questions);
+            gameData.currentQuestionIndex = 0;
+
+            document.getElementById('gameSetup').style.display = 'none';
+            document.getElementById('gameBoard').classList.add('active');
+            
+            initializeGameBoard();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function initializeGameBoard() {
+            const playersArea = document.getElementById('playersArea');
+            playersArea.innerHTML = '';
+
+            gameData.players.forEach((player, index) => {
+                const playerTower = document.createElement('div');
+                playerTower.className = 'player-tower';
+                playerTower.setAttribute('data-player', index);
+                if (index === 0) playerTower.classList.add('active');
+                playerTower.id = `player-${index}`;
+                playerTower.innerHTML = `
+                    <div class="player-name">${player.name}</div>
+                    <div class="tower-container" id="tower-${index}">
+                        <!-- Tower base -->
+                    </div>
+                `;
+                playersArea.appendChild(playerTower);
+                
+                // Rebuild tower to show any starting blocks (for cheat code)
+                rebuildTower(index);
+            });
+
+            updateCurrentPlayer();
+            updateDeckCount();
+        }
+
+        function updateCurrentPlayer() {
+            const currentPlayer = gameData.players[gameData.currentPlayerIndex];
+            document.getElementById('currentPlayerDisplay').textContent = 
+                `Current Turn: ${currentPlayer.name}`;
+
+            document.querySelectorAll('.player-tower').forEach((tower, index) => {
+                tower.classList.toggle('active', index === gameData.currentPlayerIndex);
+            });
+            
+            // Update card color to match current player
+            const root = document.documentElement;
+            const playerIndex = gameData.currentPlayerIndex;
+            root.style.setProperty('--current-player-color', `var(--player-${playerIndex}-color)`);
+            root.style.setProperty('--current-player-color-light', `var(--player-${playerIndex}-color-light)`);
+        }
+
+        function updateDeckCount() {
+            const remaining = gameData.questions.length - gameData.currentQuestionIndex;
+            document.getElementById('deckCount').textContent = remaining;
+        }
+
+        function drawCard() {
+            if (gameData.currentQuestionIndex >= gameData.questions.length) {
+                alert('No more questions!');
+                return;
+            }
+
+            const question = gameData.questions[gameData.currentQuestionIndex];
+            
+            document.getElementById('cardQuestion').textContent = question.question;
+            document.getElementById('cardQuestionBack').textContent = question.question;
+            document.getElementById('cardAnswer').textContent = 'Answer: ' + question.answer;
+            
+            const card = document.getElementById('questionCard');
+            card.classList.add('active');
+            
+            document.getElementById('cardDeck').style.pointerEvents = 'none';
+            
+            startTimer();
+            
+            // Allow clicking card to flip
+            setTimeout(() => {
+                card.onclick = flipCard;
+            }, 800);
+        }
+
+        function flipCard() {
+            document.getElementById('cardInner').classList.add('flipped');
+            clearInterval(gameData.timerInterval);
+            setTimeout(() => {
+                document.getElementById('cardActions').classList.add('active');
+            }, 600);
+        }
+
+        function startTimer() {
+            let timeLeft = 30;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            gameData.timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameData.timerInterval);
+                    flipCard();
+                }
+            }, 1000);
+        }
+
+        function handleIncorrect() {
+            resetCard();
+            nextPlayer();
+        }
+
+        function handleCorrectBuild() {
+            addBlockToTower(gameData.currentPlayerIndex);
+            resetCard();
+            checkWinner();
+            nextPlayer();
+        }
+
+        function handleCorrectDestroy() {
+            gameData.destroyMode = true;
+            
+            // Hide the card and actions immediately
+            document.getElementById('questionCard').classList.remove('active');
+            document.getElementById('cardActions').classList.remove('active');
+            
+            // Check if there are any valid opponents with more than 6 blocks
+            let hasValidTargets = false;
+            
+            // Make all opponent blocks clickable (only if they have 7+ blocks)
+            gameData.players.forEach((player, playerIndex) => {
+                if (playerIndex !== gameData.currentPlayerIndex && player.blocks.length > 6) {
+                    hasValidTargets = true;
+                    const tower = document.getElementById(`tower-${playerIndex}`);
+                    const blocks = tower.querySelectorAll('.block');
+                    blocks.forEach(block => {
+                        block.style.cursor = 'pointer';
+                        block.onclick = () => destroyBlock(playerIndex, block);
+                    });
+                }
+            });
+            
+            // If no valid targets, show message and auto-continue the game
+            if (!hasValidTargets) {
+                document.getElementById('currentPlayerDisplay').textContent = 
+                    'No opponents have enough blocks to destroy (need 7+ blocks). Moving to next player...';
+                
+                setTimeout(() => {
+                    gameData.destroyMode = false;
+                    resetCard();
+                    nextPlayer();
+                }, 2000);
+                return;
+            }
+            
+            // Show destroy mode message only if there are valid targets
+            document.getElementById('destroyModeMsg').classList.add('active');
+        }
+
+        function destroyBlock(playerIndex, blockElement) {
+            if (!gameData.destroyMode) return;
+
+            // Remove block with animation
+            blockElement.classList.add('falling');
+            
+            setTimeout(() => {
+                const blockIndex = parseInt(blockElement.dataset.blockIndex);
+                
+                // Store which layer this block was in BEFORE removal
+                const removedBlockLayer = Math.floor(blockIndex / 3);
+                const totalLayersBefore = Math.ceil(gameData.players[playerIndex].blocks.length / 3);
+                
+                // Remove the block
+                gameData.players[playerIndex].blocks.splice(blockIndex, 1);
+                
+                // Just remove the block element visually
+                blockElement.remove();
+                
+                // Check if we just removed the last block from a complete layer (not the top layer)
+                const totalLayersAfter = Math.ceil(gameData.players[playerIndex].blocks.length / 3);
+                const topLayerBefore = totalLayersBefore - 1;
+                
+                // If a layer was completely removed and it wasn't the top layer
+                if (totalLayersAfter < totalLayersBefore && removedBlockLayer < topLayerBefore) {
+                    console.log(`🔥 Removed last block from layer ${removedBlockLayer} (not top layer)! Tower collapse!`);
+                    collapseTower(playerIndex);
+                    gameData.destroyMode = false;
+                    document.getElementById('destroyModeMsg').classList.remove('active');
+                    resetCard();
+                    nextPlayer();
+                    return;
+                }
+                
+                // Check if tower should collapse (random chance)
+                if (shouldCollapse(playerIndex)) {
+                    collapseTower(playerIndex);
+                }
+                
+                gameData.destroyMode = false;
+                document.getElementById('destroyModeMsg').classList.remove('active');
+                
+                // Reset card first, then move to next player
+                resetCard();
+                nextPlayer();
+            }, 1000);
+        }
+
+        function shouldCollapse(playerIndex) {
+            const blocks = gameData.players[playerIndex].blocks;
+            if (blocks.length === 0) return false;
+            
+            // No collapse within the first 6 blocks
+            if (blocks.length <= 6) return false;
+            
+            // Custom collapse logic based on tower height
+            let collapseChance;
+            if (blocks.length <= 6) {
+                collapseChance = 0.00; // 0% (protected by earlier check)
+            } else if (blocks.length <= 9) {
+                collapseChance = 0.05; // 5% (7-9 blocks)
+            } else if (blocks.length <= 13) {
+                collapseChance = 0.07; // 7% (10-13 blocks)
+            } else if (blocks.length <= 16) {
+                collapseChance = 0.10; // 10% (14-16 blocks)
+            } else {
+                collapseChance = 0.15; // 15% (17+ blocks)
+            }
+            
+            const randomRoll = Math.random();
+            console.log(`Random collapse: ${(randomRoll * 100).toFixed(1)}% vs ${(collapseChance * 100).toFixed(1)}% threshold (${blocks.length} blocks)`);
+            return randomRoll < collapseChance;
+        }
+
+        function collapseTower(playerIndex) {
+            const tower = document.getElementById(`tower-${playerIndex}`);
+            const allBlocks = tower.querySelectorAll('.block');
+            
+            allBlocks.forEach((block, index) => {
+                setTimeout(() => {
+                    block.classList.add('falling');
+                }, index * 50);
+            });
+
+            setTimeout(() => {
+                gameData.players[playerIndex].blocks = [];
+                rebuildTower(playerIndex);
+            }, 1500);
+        }
+
+        function addBlockToTower(playerIndex) {
+            // Maximum 12 layers = 36 blocks
+            if (gameData.players[playerIndex].blocks.length >= 36) {
+                return; // Don't add more blocks if already at max
+            }
+            
+            const currentBlocks = gameData.players[playerIndex].blocks;
+            const layerIndex = Math.floor(currentBlocks.length / 3);
+            
+            gameData.players[playerIndex].blocks.push({
+                id: Date.now() + Math.random(),
+                layer: layerIndex
+            });
+            rebuildTower(playerIndex);
+        }
+
+        function rebuildTower(playerIndex) {
+            const tower = document.getElementById(`tower-${playerIndex}`);
+            tower.innerHTML = '';
+            
+            // Create 3D container
+            const tower3d = document.createElement('div');
+            tower3d.className = 'tower-3d';
+            tower3d.style.transform = 'rotateX(-20deg) rotateY(20deg)';
+            tower3d.style.position = 'relative';
+            tower3d.style.height = '600px';
+            
+            const blocks = gameData.players[playerIndex].blocks;
+            const layers = Math.ceil(blocks.length / 3);
+            
+            // IMPORTANT: Update each block's layer number to reflect current position
+            blocks.forEach((block, index) => {
+                block.layer = Math.floor(index / 3);
+            });
+            
+            // Build from bottom to top
+            for (let layer = 0; layer < layers; layer++) {
+                const isHorizontal = layer % 2 === 0;
+                const layerDiv = document.createElement('div');
+                layerDiv.className = `tower-layer ${isHorizontal ? 'horizontal' : 'vertical'}`;
+                
+                // Position from bottom, each layer 48px above the previous (doubled)
+                layerDiv.style.bottom = `${layer * 48}px`;
+                
+                const startIndex = layer * 3;
+                const blocksInLayer = Math.min(3, blocks.length - startIndex);
+                
+                for (let i = 0; i < blocksInLayer; i++) {
+                    const blockDiv = document.createElement('div');
+                    blockDiv.className = `block ${isHorizontal ? 'horizontal' : 'vertical'} pos-${i} player-${playerIndex}`;
+                    blockDiv.dataset.blockIndex = startIndex + i;
+                    
+                    // Create all 6 faces
+                    blockDiv.innerHTML = `
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face left"></div>
+                        <div class="face right"></div>
+                    `;
+                    
+                    layerDiv.appendChild(blockDiv);
+                }
+                
+                tower3d.appendChild(layerDiv);
+            }
+            
+            tower.appendChild(tower3d);
+        }
+
+        function checkWinner() {
+            const currentPlayer = gameData.players[gameData.currentPlayerIndex];
+            // Win condition: 12 layers (36 blocks)
+            if (currentPlayer.blocks.length >= 36) {
+                document.getElementById('winnerName').textContent = currentPlayer.name;
+                document.getElementById('winnerDisplay').classList.add('active');
+            }
+        }
+
+        function resetCard() {
+            clearInterval(gameData.timerInterval);
+            
+            const card = document.getElementById('questionCard');
+            const cardInner = document.getElementById('cardInner');
+            const cardActions = document.getElementById('cardActions');
+            
+            // Remove all active states
+            card.classList.remove('active');
+            card.onclick = null;
+            cardInner.classList.remove('flipped');
+            cardActions.classList.remove('active');
+            
+            // Reset timer display
+            document.getElementById('timer').textContent = '30';
+            
+            // Re-enable deck
+            document.getElementById('cardDeck').style.pointerEvents = 'auto';
+            
+            // Remove any click handlers from opponent blocks
+            document.querySelectorAll('.block').forEach(block => {
+                block.onclick = null;
+            });
+            
+            gameData.currentQuestionIndex++;
+            updateDeckCount();
+        }
+
+        function nextPlayer() {
+            gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.players.length;
+            updateCurrentPlayer();
+        }
+
+        // Initialize with one question input
+        window.onload = function() {
+            addQuestionInput();
+        };
+    </script>
+</body>
+</html>
